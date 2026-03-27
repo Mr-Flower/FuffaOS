@@ -26,4 +26,4 @@ Realizzata con ❤️ da **Flower**.
 Per passare a FuffaOS, esegui il seguente comando dal tuo terminale (se sei già su una distro uBlue/Bazzite):
 
 ```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/TUO_UTENTE_GITHUB/fuffaos:latest
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/Mr-Flower/fuffaos:latest
