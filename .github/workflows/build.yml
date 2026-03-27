@@ -1,7 +1,7 @@
 name: bluebuild
 on:
   schedule:
-    - cron: "35 14 * * *" # build alle 06:00 UTC ogni giorno
+    - cron: "35 14 * * *"
   push:
     paths-ignore:
       - "**.md"
@@ -24,18 +24,18 @@ jobs:
       fail-fast: false
       matrix:
         recipe:
-          - recipes/recipe.yml # MODIFICATO: aggiunto il percorso della cartella recipes
+          - recipe.yml 
     steps:
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
         with:
           recipe: ${{ matrix.recipe }}
-          cosign_private_key: ${{ secrets.COSIGN_PRIVATE_KEY }} # Assicurati che il nome del secret sia questo
+          cosign_private_key: ${{ secrets.COSIGN_PRIVATE_KEY }}
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
           maximize_build_space: true
 
-      - name: Build ISO # ORA È ALLINEATO CORRETTAMENTE
+      - name: Build ISO 
         uses: jasonn3/build-container-installer@main
         id: build
         with:
@@ -47,7 +47,7 @@ jobs:
           variant: Bazzite
           iso_name: fuffaos-latest.iso
 
-      - name: Upload ISO as artifact # ORA È ALLINEATO CORRETTAMENTE
+      - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
