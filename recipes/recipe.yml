@@ -13,11 +13,9 @@ modules:
 
   - type: rpm-ostree
     repos:
-      - https://dl.google.com/linux/chrome/rpm/stable/x86_64
+
     install:
-      # Browser
-      - google-chrome-stable
-      # Supporto ThinkPad e Impronte Digitali
+      
       - fprintd
       - fprintd-pam
       - libfprint
@@ -43,6 +41,8 @@ modules:
     configurations:
       - notify: true
         scope: system
+        install:
+          - com.google.Chrome
         remove:
           - org.mozilla.firefox # Rimuove il flatpak preinstallato
 
