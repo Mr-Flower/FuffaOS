@@ -1,7 +1,7 @@
 name: bluebuild
 on:
   schedule:
-    - cron: "00 06 * * *"
+    - cron: "00 06 * * *" # Build alle 15:15 ora italiana (UTC 14:15)
   push:
     paths-ignore:
       - "**.md"
@@ -17,15 +17,24 @@ jobs:
     name: Build Custom Image
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
-      id-token: write
+      contents: write   # Necessario per creare la Release
+      packages: write    # Necessario per caricare l'immagine su GHCR
+      id-token: write    # Necessario per la firma Cosign
     strategy:
       fail-fast: false
       matrix:
         recipe:
-          - recipe.yml 
+          - recipe.yml # Cerca automaticamente in recipes/recipe.yml
     steps:
+      # 1. Pulizia Docker per evitare errori di autenticazione "unauthorized"
+      - name: Clean Docker config
+        run: rm -f ~/.docker/config.json
+
+      # 2. Checkout della repository
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 3. Build dell'immagine di sistema (FuffaOS)
       - name: Build Custom Image
         uses: blue-build/github-action@v1.11
         with:
@@ -35,7 +44,8 @@ jobs:
           pr_event_number: ${{ github.event.number }}
           maximize_build_space: true
 
-      - name: Build ISO 
+      # 4. Generazione della ISO (fuffaos-latest.iso)
+      - name: Build ISO
         uses: jasonn3/build-container-installer@main
         id: build
         with:
@@ -47,6 +57,7 @@ jobs:
           variant: Bazzite
           iso_name: fuffaos-latest.iso
 
+      # 5. Caricamento della ISO come Artifact (backup temporaneo)
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
@@ -56,5 +67,27 @@ jobs:
             ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
             ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}-CHECKSUM
           if-no-files-found: error
-          retention-days: 5
+          retention-days: 2
           compression-level: 0
+
+      # 6. Pubblicazione della ISO nella sezione Releases di GitHub
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          tag_name: v${{ github.run_number }}
+          name: FuffaOS Build ${{ github.run_number }}
+          body: |
+            Immagine ISO ufficiale di **FuffaOS** (ThinkPad Ryzen Edition).
+            Basata su Fedora 41 / Bazzite.
+            
+            **Cosa include:**
+            - Google Chrome (Flatpak)
+            - Driver Fingerprint per ThinkPad
+            - Tool di sviluppo (GCC, CMake, Make)
+            - Branding personalizzato Flower
+          files: |
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}-CHECKSUM
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
