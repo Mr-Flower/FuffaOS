@@ -8,7 +8,7 @@ image-version: latest
 modules:
   - type: files
     files:
-      - source: files/system # Nota il percorso: punta alla tua cartella 'files/system'
+      - source: files/system
         destination: /
 
   - type: rpm-ostree
@@ -34,7 +34,6 @@ modules:
       - libusb1-devel
       - usbutils
       # Utility Hardware
-      - tlp
       - brightnessctl
     remove:
       - firefox
