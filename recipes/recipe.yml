@@ -1,7 +1,6 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 name: fuffaos
 description: OS image by Flower - ThinkPad Ryzen Edition.
-
 base-image: ghcr.io/ublue-os/bazzite
 image-version: latest
 
@@ -12,26 +11,18 @@ modules:
         destination: /
 
   - type: rpm-ostree
-    repos:
-
     install:
-      
       - fprintd
       - fprintd-pam
       - libfprint
-      # Sviluppo (Base-devel / USB-devel)
+      - thinkfan
+      - fwupd
       - gcc
-      - gcc-c++
       - make
-      - automake
-      - autoconf
       - cmake
-      - git
-      - binutils
       - kernel-devel
       - libusb1-devel
       - usbutils
-      # Utility Hardware
       - brightnessctl
     remove:
       - firefox
@@ -44,10 +35,10 @@ modules:
         install:
           - com.google.Chrome
         remove:
-          - org.mozilla.firefox # Rimuove il flatpak preinstallato
+          - org.mozilla.firefox
 
   - type: script
     scripts:
-      - thinkpad-setup.sh # BlueBuild cercherà questo file dentro files/scripts/
+      - thinkpad-setup.sh
 
   - type: signing
