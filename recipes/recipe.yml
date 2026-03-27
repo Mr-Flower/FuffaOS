@@ -24,9 +24,7 @@ modules:
       - libusb1-devel
       - usbutils
       - brightnessctl
-    remove:
-      - firefox
-      - firefox-langpacks
+
 
   - type: default-flatpaks
     configurations:
